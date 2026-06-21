@@ -154,7 +154,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if request.method == 'POST':
-            obj, created = model.objects.get_or_create(user=user, recipe=recipe)
+            obj, created = model.objects.get_or_create(
+                user=user, recipe=recipe
+            )
             if not created:
                 return Response(
                     {'errors': error_message},

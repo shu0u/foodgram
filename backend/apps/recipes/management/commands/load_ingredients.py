@@ -40,7 +40,10 @@ class Command(BaseCommand):
                 if len(row) >= 2:
                     name, measurement_unit = row[0].strip(), row[1].strip()
                     ingredients_to_create.append(
-                        Ingredient(name=name, measurement_unit=measurement_unit)
+                        Ingredient(
+                            name=name,
+                            measurement_unit=measurement_unit,
+                        )
                     )
 
         Ingredient.objects.bulk_create(
