@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
 from apps.recipes.models import (
     Favorite,
@@ -31,15 +32,25 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'author', 'favorites_count')
+    list_display = (
+        'id', 'name', 'author', 'image_preview', 'favorites_count'
+    )
     search_fields = ('name', 'author__username')
     list_filter = ('tags',)
     inlines = (RecipeIngredientInline,)
-    readonly_fields = ('favorites_count',)
+    readonly_fields = ('favorites_count', 'image_preview')
 
+    @admin.display(description='В избранном')
     def favorites_count(self, obj):
         return obj.favorites.count()
-    favorites_count.short_description = 'В избранном'
+
+    @admin.display(description='Изображение')
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="max-height: 50px;" />', obj.image.url
+            )
+        return '—'
 
 
 @admin.register(Favorite)

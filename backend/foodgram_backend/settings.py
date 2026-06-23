@@ -154,7 +154,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'apps.api.pagination.CustomPagination',
+    'DEFAULT_PAGINATION_CLASS': 'apps.api.pagination.Pagination',
     'PAGE_SIZE': 6,
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -164,9 +164,9 @@ REST_FRAMEWORK = {
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
-        'user_create': 'apps.api.serializers.CustomUserCreateSerializer',
-        'user': 'apps.api.serializers.CustomUserSerializer',
-        'current_user': 'apps.api.serializers.CustomUserSerializer',
+        'user_create': 'apps.api.serializers.FoodgramUserCreateSerializer',
+        'user': 'apps.api.serializers.FoodgramUserSerializer',
+        'current_user': 'apps.api.serializers.FoodgramUserSerializer',
     },
     'PERMISSIONS': {
         'user': ['rest_framework.permissions.AllowAny'],
