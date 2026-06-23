@@ -1,20 +1,25 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+
+MAX_EMAIL_LENGTH = 254
+MAX_USERNAME_LENGTH = 150
 
 
 class User(AbstractUser):
     email = models.EmailField(
         'Email',
-        max_length=254,
+        max_length=MAX_EMAIL_LENGTH,
         unique=True,
     )
     username = models.CharField(
         'Никнейм',
-        max_length=150,
+        max_length=MAX_USERNAME_LENGTH,
         unique=True,
+        validators=[UnicodeUsernameValidator()],
     )
-    first_name = models.CharField('Имя', max_length=150)
-    last_name = models.CharField('Фамилия', max_length=150)
+    first_name = models.CharField('Имя', max_length=MAX_USERNAME_LENGTH)
+    last_name = models.CharField('Фамилия', max_length=MAX_USERNAME_LENGTH)
     avatar = models.ImageField(
         'Аватар',
         upload_to='users/avatars/',
@@ -55,6 +60,10 @@ class Subscription(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'author'],
                 name='unique_subscription',
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F('author')),
+                name='prevent_self_subscription',
             ),
         ]
 

@@ -4,21 +4,19 @@ from django.db import models
 
 User = get_user_model()
 
-MAX_TAG_NAME_LENGTH = 32
-MAX_TAG_SLUG_LENGTH = 32
+MAX_TAG_FIELD_LENGTH = 32
 MAX_INGREDIENT_NAME_LENGTH = 128
 MAX_MEASUREMENT_UNIT_LENGTH = 64
 MAX_RECIPE_NAME_LENGTH = 256
-MIN_COOKING_TIME = 1
-MIN_INGREDIENT_AMOUNT = 1
+MIN_VALUE = 1
 
 
 class Tag(models.Model):
     name = models.CharField(
-        'Название', max_length=MAX_TAG_NAME_LENGTH, unique=True
+        'Название', max_length=MAX_TAG_FIELD_LENGTH, unique=True
     )
     slug = models.SlugField(
-        'Слаг', max_length=MAX_TAG_SLUG_LENGTH, unique=True
+        'Слаг', max_length=MAX_TAG_FIELD_LENGTH, unique=True
     )
 
     class Meta:
@@ -70,7 +68,7 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(Tag, verbose_name='Теги')
     cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления (мин)',
-        validators=[MinValueValidator(MIN_COOKING_TIME)],
+        validators=[MinValueValidator(MIN_VALUE)],
     )
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True, db_index=True
@@ -99,7 +97,7 @@ class RecipeIngredient(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         'Количество',
-        validators=[MinValueValidator(MIN_INGREDIENT_AMOUNT)],
+        validators=[MinValueValidator(MIN_VALUE)],
     )
 
     class Meta:
@@ -130,6 +128,12 @@ class UserRecipeBaseModel(models.Model):
 
     class Meta:
         abstract = True
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='%(app_label)s_%(class)s_unique_user_recipe',
+            ),
+        ]
 
     def __str__(self):
         return f'{self.user} → {self.recipe}'
@@ -140,12 +144,6 @@ class Favorite(UserRecipeBaseModel):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
         default_related_name = 'favorites'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_favorite',
-            ),
-        ]
 
 
 class ShoppingCart(UserRecipeBaseModel):
@@ -153,9 +151,3 @@ class ShoppingCart(UserRecipeBaseModel):
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
         default_related_name = 'shopping_cart'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_shopping_cart',
-            ),
-        ]
